@@ -70,15 +70,15 @@ class Film {
     private boolean disponibile;
 
     // Costruttore
-    public Film(int id, String titolo, int anno) {
+    public Film(int id, String titolo, int anno, boolean disponibile) {
         this.id = id;
         this.titolo = titolo;
         this.anno = anno;
-        this.disponibile = true; 
+        this.disponibile = disponibile; 
     }
 
-    public Film(String titolo, int anno) {
-        this(0, titolo, anno);
+    public Film(String titolo, int anno, boolean disponibile) {
+        this(0, titolo, anno, disponibile);
     }
 
     public int getId() {
@@ -164,7 +164,7 @@ class Videoteca {
 
             while (rs.next()) {
                 // Carico i dati dal database nel catalogo
-                catalogo.add(new Film(rs.getInt("ID"), rs.getString("titolo"), rs.getInt("anno")));
+                catalogo.add(new Film(rs.getInt("ID"), rs.getString("titolo"), rs.getInt("anno"), rs.getBoolean("disponibile")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -196,7 +196,7 @@ class Videoteca {
 
             while (rs.next()) {
                 int userId = rs.getInt(1);
-                Film film = new Film(rs.getInt(3), rs.getString(4), rs.getInt(5));
+                Film film = new Film(rs.getInt(3), rs.getString(4), rs.getInt(5), rs.getBoolean(6));
                 for (Utente utente : utenti) {
                     if (utente.getId() == userId) {
                         utente.aggiungiNoleggio(film);
@@ -272,7 +272,7 @@ class Videoteca {
     public void mostraUtenti() {
         System.out.println("\n=== Lista Utenti ===");
         for (Utente utente : utenti) {
-            System.out.println("- " + utente);
+            System.out.println("- " + utente.getNome());
         }
     }
 
@@ -554,7 +554,7 @@ class Menu {
                     System.out.print("Anno di uscita: ");
                     int anno = Controlli.controlloInputInteri(scanner);
                     scanner.nextLine();
-                    videoteca.aggiungiFilm(new Film(titolo, anno));
+                    videoteca.aggiungiFilm(new Film(titolo, anno, true));
                     break;
                 case 2:
                     System.out.print("Inserisci l'ID del film da eliminare: ");
