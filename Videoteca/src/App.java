@@ -74,29 +74,25 @@ class Film {
         this.id = id;
         this.titolo = titolo;
         this.anno = anno;
-        this.disponibile = true; // Un film appena aggiunto è disponibile
+        this.disponibile = true; 
     }
 
     public Film(String titolo, int anno) {
-        this(0, titolo, anno); // Impostiamo l'ID a 0 per i nuovi film
+        this(0, titolo, anno);
     }
 
-    // Getter per ID
     public int getId() {
         return id;
     }
 
-    // Getter per titolo
     public String getTitolo() {
         return titolo;
     }
 
-    // Getter per anno
     public int getAnno() {
         return anno;
     }
 
-    // Getter e Setter per la disponibilità
     public boolean isDisponibile() {
         return disponibile;
     }
@@ -117,6 +113,7 @@ class Utente {
     private String nome;
     private List<Film> filmNoleggiati;
 
+    // costruttore
     public Utente(int id, String nome) {
         this.id = id;
         this.nome = nome;
@@ -152,6 +149,7 @@ class Videoteca {
     private List<Film> catalogo;
     private List<Utente> utenti;
 
+    // costruttore
     public Videoteca() {
         this.catalogo = new ArrayList<>();
         this.utenti = new ArrayList<>();
