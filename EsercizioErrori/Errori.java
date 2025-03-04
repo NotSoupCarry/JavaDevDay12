@@ -9,7 +9,7 @@ public class Errori {
             System.out.println("Inserisci la quantità di cioccolatini che desideri acquistare:");
 
             String input = scanner.nextLine();
-            int quantita = Integer.parseInt(input);  // Potrebbe lanciare una NumberFormatException
+            int quantita = Integer.parseInt(input); // Potrebbe lanciare una NumberFormatException
 
             // Controllare che la quantità non sia negativa
             if (quantita < 0) {
