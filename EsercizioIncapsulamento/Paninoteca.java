@@ -23,7 +23,7 @@ public class Paninoteca {
 
 // Classe Menu
 class Menu {
-    private Scanner scanner;
+    public Scanner scanner;
     public String[] ingredientiPubblici = { "pomodoro", "cipolla", "maionese", "ketchup" };
 
     public Menu(Scanner scanner) {
