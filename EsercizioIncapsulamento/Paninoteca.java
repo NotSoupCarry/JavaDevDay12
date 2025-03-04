@@ -89,7 +89,7 @@ class PiattoSpeciale {
             prezzoTotale += prezziPrivati[indice];
             System.out.println("Ingrediente aggiunto: " + ingrediente + " (Prezzo: " + prezziPrivati[indice] + " euro, Quantità rimasta: " + quantità[indice] + ")");
         } else {
-            System.out.println("Non puoi aggiungere l'ingrediente: " + ingrediente + " OUT OF STOCKS");
+            System.out.println("Non puoi aggiungere l'ingrediente: " + ingrediente );
         }
     }
 
