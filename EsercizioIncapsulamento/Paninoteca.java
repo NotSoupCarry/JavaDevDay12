@@ -37,10 +37,16 @@ class Menu {
         PiattoSpeciale piatto = new PiattoSpeciale();
 
         // Selezione ingredienti pubblici
-        System.out.println("\nInserisci un ingrediente: ");
-        String ingr = scanner.nextLine().toLowerCase();
+        while (true) {
+            System.out.println("\nInserisci un ingrediente (digita 'fine' per terminare): ");
+            String ingr = scanner.nextLine().toLowerCase();
 
-        piatto.aggiungiIngrediente(ingr);
+            if (ingr.equals("fine")) {
+                break;
+            }
+
+            piatto.aggiungiIngrediente(ingr);
+        }
 
         piatto.stampaDettagli();
     }
@@ -53,33 +59,43 @@ class Menu {
     }
 }
 
-// Classe PiattoSpeciale: incapsula ingredienti e prezzo
+// Classe PiattoSpeciale: incapsula ingredienti, quantità e prezzo
 class PiattoSpeciale {
     private String[] ingredientiPrivati = { "pomodoro", "cipolla", "maionese", "ketchup" };
     private Double[] prezziPrivati = { 1.50, 35.25, 0.05, 10.00 };
-    private String ingredienteSelezionato;
+    private int[] quantità = { 5, 3, 1, 2 };  
+    private double prezzoTotale = 0;
 
-    // Metodo per controllare se l'ingrediente è valido
+    // Metodo per controllare se l'ingrediente è valido e se la quantità è sufficiente
     private int checkIngrediente(String ingrediente) {
         int indice = Arrays.asList(ingredientiPrivati).indexOf(ingrediente);
-        return indice; 
+        if (indice > -1) {
+            if (quantità[indice] > 0) {
+                return indice; // Ingredienti disponibile
+            } else {
+                System.out.println("Errore: " + ingrediente + " è esaurito!");
+                return -1; // Ingrediente esaurito
+            }
+        }
+        return -1; // Ingrediente non trovato
     }
 
     // Metodo per aggiungere un ingrediente e aggiornare il prezzo
     public void aggiungiIngrediente(String ingrediente) {
-        this.ingredienteSelezionato = ingrediente;
+        int indice = checkIngrediente(ingrediente);
+        if (indice > -1) {
+            // Se l'ingrediente è valido e disponibile, decrementa la quantità e aggiungi al prezzo
+            quantità[indice]--;
+            prezzoTotale += prezziPrivati[indice];
+            System.out.println("Ingrediente aggiunto: " + ingrediente + " (Prezzo: " + prezziPrivati[indice] + " euro, Quantità rimasta: " + quantità[indice] + ")");
+        } else {
+            System.out.println("Non puoi aggiungere l'ingrediente: " + ingrediente + " OUT OF STOCKS");
+        }
     }
 
-    // Metodo per stampare i dettagli del piatto
+    // Metodo per stampare i dettagli del piatto e il prezzo totale
     public void stampaDettagli() {
-        int indice = checkIngrediente(this.ingredienteSelezionato);
-        if (indice > -1) {
-            System.out.println("\n--- Dettagli del Piatto Speciale ---");
-            System.out.print("Ingrediente selezionato: " + ingredienteSelezionato);
-            System.out.println("Prezzo: " + prezziPrivati[indice]);
-        } else {
-            System.out.println("Ingrediente non validop");
-        }
-
+        System.out.println("\n--- Dettagli del Piatto Speciale ---");
+        System.out.println("Prezzo totale: " + prezzoTotale + " euro");
     }
 }
