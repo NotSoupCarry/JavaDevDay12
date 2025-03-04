@@ -1,0 +1,27 @@
+-- Creazione del database (se non esiste già)
+CREATE DATABASE IF NOT EXISTS VideotecaDB;
+USE VideotecaDB;
+
+-- Tabella Film
+CREATE TABLE film (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    titolo VARCHAR(255) NOT NULL,
+    anno INT NOT NULL
+);
+
+-- Tabella Utente
+CREATE TABLE utente (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL
+);
+
+-- Tabella Noleggio (relazione tra Utente e Film)
+CREATE TABLE noleggio (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    id_utente INT NOT NULL,
+    id_film INT NOT NULL,
+    data_noleggio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_utente) REFERENCES utente(ID) ON DELETE CASCADE,
+    FOREIGN KEY (id_film) REFERENCES film(ID) ON DELETE CASCADE
+);
+
