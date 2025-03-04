@@ -3,6 +3,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.sql.Timestamp;
 
 public class App {
     public static void main(String[] args) {
@@ -74,7 +75,7 @@ class Film {
         this.id = id;
         this.titolo = titolo;
         this.anno = anno;
-        this.disponibile = disponibile; 
+        this.disponibile = disponibile;
     }
 
     public Film(String titolo, int anno, boolean disponibile) {
@@ -142,6 +143,33 @@ class Utente {
             }
         }
     }
+
+    // Aggiungi questo getter
+    public List<Film> getFilmNoleggiati() {
+        return filmNoleggiati;
+    }
+}
+
+// Classe admin
+class Admin {
+    private int id;
+    private String username;
+    private String password;
+
+    public Admin(int id, String username, String password) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+    }
+
+    // Getter per username e password
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
 }
 
 // Classe Videoteca
@@ -164,7 +192,8 @@ class Videoteca {
 
             while (rs.next()) {
                 // Carico i dati dal database nel catalogo
-                catalogo.add(new Film(rs.getInt("ID"), rs.getString("titolo"), rs.getInt("anno"), rs.getBoolean("disponibile")));
+                catalogo.add(new Film(rs.getInt("ID"), rs.getString("titolo"), rs.getInt("anno"),
+                        rs.getBoolean("disponibile")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -441,6 +470,39 @@ class Videoteca {
             utente.elencoNoleggi(); // Mostra i noleggi per ogni utente
         }
     }
+
+    public void mostraDettagliNoleggi() {
+        String query = "SELECT f.titolo, u.nome, n.data_noleggio " +
+                "FROM noleggio n " +
+                "JOIN film f ON n.id_film = f.ID " +
+                "JOIN utente u ON n.id_utente = u.ID";
+
+        try (Connection conn = DBcontext.connessioneDatabase();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(query)) {
+
+            System.out.println("\n=== Dettagli dei Noleggi ===");
+
+            // Controllo se ci sono noleggi
+            if (!rs.isBeforeFirst()) {
+                System.out.println("Nessun noleggio trovato.");
+                return;
+            }
+
+            // Stampa i dettagli di ogni noleggio
+            while (rs.next()) {
+                String titoloFilm = rs.getString("titolo");
+                String nomeUtente = rs.getString("nome");
+                Timestamp dataNoleggio = rs.getTimestamp("data_noleggio");
+
+                System.out.println(
+                        "Film: " + titoloFilm + " | Utente: " + nomeUtente + " | Data Noleggio: " + dataNoleggio);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     // #endregion
 }
 
@@ -464,7 +526,8 @@ class Menu {
             System.out.println("1. Menu Gestione Utenti");
             System.out.println("2. Menu Gestione Film");
             System.out.println("3. Menu Gestione Noleggi");
-            System.out.println("4. Esci");
+            System.out.println("4. Login amministratori");
+            System.out.println("5. Esci");
 
             System.out.print("Scegli un'opzione (1-4): ");
             scelta = Controlli.controlloInputInteri(scanner);
@@ -481,6 +544,9 @@ class Menu {
                     menuNoleggi(scanner, videoteca);
                     break;
                 case 4:
+                    loginAdmin(scanner, videoteca);
+                    break;
+                case 5:
                     System.out.println("Uscita dal programma.");
                     exitMainMenu = true;
                     break;
@@ -538,34 +604,18 @@ class Menu {
 
         while (!exitMenuFilm) {
             System.out.println("\n==== Menu Principale ====");
-            System.out.println("1. Aggiungi Film");
-            System.out.println("2. Elimina un Film");
-            System.out.println("3. Mostra tutti i Film");
-            System.out.println("4. Torna al menu principale");
+            System.out.println("1. Mostra tutti i Film");
+            System.out.println("2. Torna al menu principale");
 
-            System.out.print("Scegli un'opzione (1-4): ");
+            System.out.print("Scegli un'opzione (1-2): ");
             sceltaMenuFilm = Controlli.controlloInputInteri(scanner);
             scanner.nextLine();
 
             switch (sceltaMenuFilm) {
                 case 1:
-                    System.out.print("Titolo del film: ");
-                    String titolo = Controlli.controlloInputStringhe(scanner);
-                    System.out.print("Anno di uscita: ");
-                    int anno = Controlli.controlloInputInteri(scanner);
-                    scanner.nextLine();
-                    videoteca.aggiungiFilm(new Film(titolo, anno, true));
-                    break;
-                case 2:
-                    System.out.print("Inserisci l'ID del film da eliminare: ");
-                    int idFilm = Controlli.controlloInputInteri(scanner);
-                    scanner.nextLine();
-                    videoteca.eliminaFilm(idFilm);
-                    break;
-                case 3:
                     videoteca.mostraFilm();
                     break;
-                case 4:
+                case 2:
                     System.out.println("Torno al menu principale.");
                     exitMenuFilm = true;
                     break;
@@ -631,4 +681,80 @@ class Menu {
             }
         }
     }
+
+    // Gestione Login dell Admin
+    public static void loginAdmin(Scanner scanner, Videoteca videoteca) {
+        System.out.print("Inserisci username: ");
+        String usernameInput = Controlli.controlloInputStringhe(scanner);
+        System.out.print("Inserisci password: ");
+        String passwordInput = Controlli.controlloInputStringhe(scanner);
+
+        try (Connection conn = DBcontext.connessioneDatabase();
+                PreparedStatement stmt = conn
+                        .prepareStatement("SELECT * FROM admin WHERE username = ? AND password = ?")) {
+
+            stmt.setString(1, usernameInput);
+            stmt.setString(2, passwordInput);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Admin admin = new Admin(rs.getInt("ID"), rs.getString("username"), rs.getString("password"));
+                    // Credenziali corrette
+                    System.out.println("Login effettuato con successo! Benvenuto " + admin.getUsername());
+                    // Procedi con l'accesso alla sezione Admin
+                    menuGestioneAdmin(scanner, videoteca);
+                } else {
+                    // Credenziali errate
+                    System.out.println("Username o password errati. Ritorno al menu principale.");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Errore durante il login.");
+        }
+    }
+
+    // Menu di gestione dell admin
+    public static void menuGestioneAdmin(Scanner scanner, Videoteca videoteca) {
+        int scelta;
+        boolean exitAdminMenu = false;
+
+        while (!exitAdminMenu) {
+            System.out.println("\n==== Menu Amministratore ====");
+            System.out.println("1. Controlla da quanto ogni film è in noleggio");
+            System.out.println("2. Aggiungi un Film");
+            System.out.println("3. Elimina un film");
+            System.out.println("4. Logout");
+
+            System.out.print("Scegli un'opzione (1-4): ");
+            scelta = Controlli.controlloInputInteri(scanner);
+
+            switch (scelta) {
+                case 1:
+                    videoteca.mostraDettagliNoleggi();
+                    break;
+                case 2:
+                    System.out.print("Titolo del film: ");
+                    String titolo = Controlli.controlloInputStringhe(scanner);
+                    System.out.print("Anno di uscita: ");
+                    int anno = Controlli.controlloInputInteri(scanner);
+                    scanner.nextLine();
+                    videoteca.aggiungiFilm(new Film(titolo, anno, true));
+                    break;
+                case 3:
+                    System.out.print("Inserisci l'ID del film da eliminare: ");
+                    int idFilm = Controlli.controlloInputInteri(scanner);
+                    scanner.nextLine();
+                    videoteca.eliminaFilm(idFilm);
+                    break;
+                case 4:
+                    System.out.println("Uscita dal menu amministratore.");
+                    exitAdminMenu = true;
+                    break;
+                default:
+                    System.out.println("Opzione non valida! Riprova.");
+            }
+        }
+    }
+
 }

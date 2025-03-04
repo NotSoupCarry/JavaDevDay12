@@ -13,3 +13,5 @@ INSERT INTO noleggio (id_utente, id_film) VALUES
 (1, 1),  -- Mario Rossi noleggia Inception
 (1, 3),  -- Mario Rossi noleggia The Matrix
 (2, 2);  -- Luca Bianchi noleggia Interstellar
+
+INSERT INTO `videotecadb`.`admin` (`username`, `password`) VALUES ('Admin1', 'a');

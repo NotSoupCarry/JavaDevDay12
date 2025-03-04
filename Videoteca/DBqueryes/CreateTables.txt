@@ -26,3 +26,11 @@ CREATE TABLE noleggio (
     FOREIGN KEY (id_film) REFERENCES film(ID) ON DELETE CASCADE
 );
 
+-- Tabella admin
+CREATE TABLE `admin` (
+  `ID` int NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
