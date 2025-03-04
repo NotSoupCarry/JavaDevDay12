@@ -21,7 +21,7 @@ public class Paninoteca {
     }
 }
 
-// Classe Menu: gestisce l'input dell'utente e la creazione del piatto speciale
+// Classe Menu
 class Menu {
     private Scanner scanner;
     public String[] ingredientiPubblici = { "pomodoro", "cipolla", "maionese", "ketchup" };
@@ -59,7 +59,7 @@ class Menu {
     }
 }
 
-// Classe PiattoSpeciale: incapsula ingredienti, quantità e prezzo
+// Classe PiattoSpeciale
 class PiattoSpeciale {
     private String[] ingredientiPrivati = { "pomodoro", "cipolla", "maionese", "ketchup" };
     private Double[] prezziPrivati = { 1.50, 35.25, 0.05, 10.00 };
