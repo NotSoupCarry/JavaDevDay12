@@ -6,7 +6,8 @@ USE VideotecaDB;
 CREATE TABLE film (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     titolo VARCHAR(255) NOT NULL,
-    anno INT NOT NULL
+    anno INT NOT NULL,
+    disponibile BOOLEAN DEFAULT TRUE
 );
 
 -- Tabella Utente

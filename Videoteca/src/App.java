@@ -67,27 +67,42 @@ class Film {
     private int id;
     private String titolo;
     private int anno;
+    private boolean disponibile;
 
+    // Costruttore
     public Film(int id, String titolo, int anno) {
         this.id = id;
         this.titolo = titolo;
         this.anno = anno;
+        this.disponibile = true; // Un film appena aggiunto è disponibile
     }
 
     public Film(String titolo, int anno) {
-        this(0, titolo, anno);
+        this(0, titolo, anno); // Impostiamo l'ID a 0 per i nuovi film
     }
 
+    // Getter per ID
     public int getId() {
         return id;
     }
 
+    // Getter per titolo
     public String getTitolo() {
         return titolo;
     }
 
+    // Getter per anno
     public int getAnno() {
         return anno;
+    }
+
+    // Getter e Setter per la disponibilità
+    public boolean isDisponibile() {
+        return disponibile;
+    }
+
+    public void setDisponibile(boolean disponibile) {
+        this.disponibile = disponibile;
     }
 
     @Override
@@ -150,6 +165,7 @@ class Videoteca {
                 ResultSet rs = stmt.executeQuery("SELECT * FROM film")) {
 
             while (rs.next()) {
+                // Carico i dati dal database nel catalogo
                 catalogo.add(new Film(rs.getInt("ID"), rs.getString("titolo"), rs.getInt("anno")));
             }
         } catch (SQLException e) {
@@ -343,7 +359,8 @@ class Videoteca {
     public void mostraFilm() {
         System.out.println("\n=== Catalogo Film ===");
         for (Film film : catalogo) {
-            System.out.println("- " + film);
+            String stato = film.isDisponibile() ? "Disponibile" : "Noleggiato";
+            System.out.println("- " + film + " (" + stato + ")");
         }
     }
 
@@ -368,11 +385,37 @@ class Videoteca {
     // #region METODI PER LA GESTIONE DEI NOLEGGI
     public void noleggiaFilm(int idUtente, int idFilm) {
         try (Connection conn = DBcontext.connessioneDatabase();
-                PreparedStatement pstmt = conn
-                        .prepareStatement("INSERT INTO noleggio (id_utente, id_film) VALUES (?, ?)")) {
-            pstmt.setInt(1, idUtente);
-            pstmt.setInt(2, idFilm);
-            pstmt.executeUpdate();
+                PreparedStatement pstmt = conn.prepareStatement("SELECT disponibile FROM film WHERE ID = ?")) {
+
+            // Controlla se il film è disponibile
+            pstmt.setInt(1, idFilm);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                boolean disponibile = rs.getBoolean("disponibile");
+                if (!disponibile) {
+                    System.out.println("Il film non è disponibile per il noleggio.");
+                    return;
+                }
+            }
+
+            // Se il film è disponibile, procedi con il noleggio
+            try (PreparedStatement insertNoleggio = conn
+                    .prepareStatement("INSERT INTO noleggio (id_utente, id_film) VALUES (?, ?)")) {
+                insertNoleggio.setInt(1, idUtente);
+                insertNoleggio.setInt(2, idFilm);
+                insertNoleggio.executeUpdate();
+            }
+
+            // Rendi il film non disponibile
+            try (PreparedStatement updateDisponibile = conn
+                    .prepareStatement("UPDATE film SET disponibile = FALSE WHERE ID = ?")) {
+                updateDisponibile.setInt(1, idFilm);
+                updateDisponibile.executeUpdate();
+            }
+
+            System.out.println("Film noleggiato con successo!");
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -400,7 +443,7 @@ class Videoteca {
             utente.elencoNoleggi(); // Mostra i noleggi per ogni utente
         }
     }
-    //#endregion
+    // #endregion
 }
 
 // Classe Menu
