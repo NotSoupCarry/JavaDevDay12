@@ -8,5 +8,9 @@ public class ProvaErrors {
         } catch (Exception e) {
             System.out.println("Errore, qualcosa è andato storto");
         }
+        finally{
+            System.out.println("il \"try-catch\" è finito");
+
+        }
     }
 }
