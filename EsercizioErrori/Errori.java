@@ -3,7 +3,7 @@ import java.util.Scanner;
 public class Errori {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        final double PREZZOCIOCCOLATINO = 1.50; // Prezzo per ogni cioccolatino
+        final double PREZZOPERCIOCCOLATINO = 1.50; // Prezzo per ogni cioccolatino
         double costoTotale = 0;
 
         try {
@@ -18,7 +18,7 @@ public class Errori {
             }
 
             // Calcolare il costo totale
-            costoTotale = quantita * PREZZOCIOCCOLATINO;
+            costoTotale = quantita * PREZZOPERCIOCCOLATINO;
             System.out.println("Il costo totale per " + quantita + " cioccolatini è: " + costoTotale + " euro");
 
         } catch (NumberFormatException e) {
